@@ -12,22 +12,33 @@ public class MangaController {
 
   @GetMapping
   public Manga getMangaById(@PathVariable long id) {
-    return repository.findById(id).orElse(null);
+    return repository.findById(id).orElseThrow(() -> new RuntimeException("Manga not found"));
   }
 
-  @PutMapping
+  @PostMapping
   public Manga saveManga(@RequestBody Manga manga) {
     return repository.save(manga);
   }
 
-  // Dunno
-  @PostMapping
+  @PutMapping
   public Manga updateManga(Manga manga) {
-    return repository.save(manga);
+
+    Manga find =
+        repository
+            .findById(manga.getId())
+            .orElseThrow(() -> new RuntimeException("Manga not found"));
+    find.setAuthor(manga.getAuthor());
+    find.setPrice(manga.getPrice());
+    find.setTitle(manga.getTitle());
+
+    return repository.save(find);
   }
 
   @DeleteMapping
   public void deleteMangaById(@PathVariable long id) {
-    repository.deleteById(id);
+
+    Manga manga =
+        repository.findById(id).orElseThrow(() -> new RuntimeException("Manga not found"));
+    repository.delete(manga);
   }
 }
